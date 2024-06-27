@@ -1,0 +1,20 @@
+{
+    "cSpell.words": [
+        "govee",
+        "kasa",
+        "lightkit",
+        "openrgb",
+        "orgb",
+        "porc",
+        "psutil",
+        "unskip"
+    ],
+    "files.watcherExclude": {
+        "**/.dart_tool": true,
+        "_build/**": true
+    },
+    "python.analysis.extraPaths": [
+        "/usr/local/lib/python3.11/site-packages",
+        "./src/lib"
+    ]
+}

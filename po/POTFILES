@@ -1,0 +1,6 @@
+data/dev.bedsteler20.CuteLights.desktop.in
+data/dev.bedsteler20.CuteLights.metainfo.xml.in
+data/dev.bedsteler20.CuteLights.gschema.xml
+src/main.py
+src/window.py
+src/window.ui
