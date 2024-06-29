@@ -10,6 +10,7 @@ import asyncio
 from gi.repository import GLib
 import psutil
 
+
 EFFECTS_DIR = f"{GLib.get_user_config_dir()}/cute_lights/effects"
 STATE_DIR = f"{GLib.get_user_config_dir()}/cute_lights/state"
 
@@ -27,6 +28,8 @@ class Settings:
 
     hue_enabled: bool = False
     hue_bridge_ip: str = ""
+    smartthings_enabled: bool = False
+    smartthings_api_token: str = ""
 
     def __init__(self) -> None:
         if not os.path.exists(APP_CONF_FILE):
@@ -66,6 +69,11 @@ class Settings:
         if "hue_bridge_ip" in data:
             self.hue_bridge_ip = data["hue_bridge_ip"]
 
+        if "smartthings_api_token" in data:
+            self.smartthings_api_token = data["smartthings_api_token"]
+        
+        if "smartthings_enabled" in data:
+            self.smartthings_enabled = data["smartthings_enabled"]
 
 settings = Settings()
 
@@ -98,7 +106,7 @@ class EffectLoader:
             print(f"Loaded effect: {mod.name}")
 
     def start_effect(self, effect_id):
-        porc = subprocess.Popen(["python", __file__, effect_id], start_new_session=True)
+        porc = subprocess.Popen(["python3", __file__, effect_id], start_new_session=True)
         with open(EFFECT_PID_FILE, "w") as f:
             f.write(str(porc.pid))
         
@@ -140,6 +148,7 @@ if __name__ == "__main__":
         from lightkit.govee_kit import GoveeDiscoverer
         from lightkit.kasa_kit import KasaDiscoverer
         from lightkit.hue_kit import HueDiscoverer
+        from lightkit.smart_kit import SmartDiscover
 
         kit = LightKit()
 
@@ -151,6 +160,9 @@ if __name__ == "__main__":
 
         if settings.hue_enabled:
             kit.add_discoverer(HueDiscoverer(settings.hue_bridge_ip))
+
+        if settings.smartthings_enabled:
+            kit.add_discoverer(SmartDiscover(settings.smartthings_api_token))
 
 
         mod_name = sys.argv[1]

@@ -52,6 +52,7 @@ light_kit_sources = [
   'lib/lightkit/openrgb_kit.py',
   'lib/lightkit/utils.py',
   'lib/lightkit/sound.py',
+  'lib/lightkit/smart_kit.py',
 ]
 
 install_data(light_kit_sources, install_dir: light_kit_dir)
