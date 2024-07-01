@@ -1,6 +1,8 @@
 pkgdatadir = get_option('prefix') / get_option('datadir') / meson.project_name()
 moduledir = pkgdatadir / 'cute_lights'
-light_kit_dir = moduledir / 'lib' / 'lightkit'
+
+subdir('lib/lightkit')
+
 
 gnome = import('gnome')
 blueprints = custom_target('blueprints',
@@ -42,19 +44,5 @@ cute_lights_sources = [
   'window.py',
   'effect_loader.py',
 ]
-
-light_kit_sources = [
-  'lib/lightkit/__init__.py',
-  'lib/lightkit/core.py',
-  'lib/lightkit/govee_kit.py',
-  'lib/lightkit/hue_kit.py',
-  'lib/lightkit/kasa_kit.py',
-  'lib/lightkit/openrgb_kit.py',
-  'lib/lightkit/utils.py',
-  'lib/lightkit/sound.py',
-  'lib/lightkit/smart_kit.py',
-]
-
-install_data(light_kit_sources, install_dir: light_kit_dir)
 
 install_data(cute_lights_sources, install_dir: moduledir)

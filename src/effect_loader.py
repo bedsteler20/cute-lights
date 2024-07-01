@@ -19,6 +19,7 @@ ACTIVE_EFFECT_FILE = f"{STATE_DIR}/active_effect"
 EFFECT_PID_FILE = f"{STATE_DIR}/effect_pid"
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
+
 class Settings:
     govee_enabled: bool = False
     govee_ips: list[str] = []
@@ -71,11 +72,13 @@ class Settings:
 
         if "smartthings_api_token" in data:
             self.smartthings_api_token = data["smartthings_api_token"]
-        
+
         if "smartthings_enabled" in data:
             self.smartthings_enabled = data["smartthings_enabled"]
 
+
 settings = Settings()
+
 
 class EffectLoader:
     def __init__(self):
@@ -106,10 +109,12 @@ class EffectLoader:
             print(f"Loaded effect: {mod.name}")
 
     def start_effect(self, effect_id):
-        porc = subprocess.Popen(["python3", __file__, effect_id], start_new_session=True)
+        porc = subprocess.Popen(
+            ["python3", __file__, effect_id], start_new_session=True
+        )
         with open(EFFECT_PID_FILE, "w") as f:
             f.write(str(porc.pid))
-        
+
         with open(ACTIVE_EFFECT_FILE, "w") as f:
             f.write(effect_id)
 
@@ -120,7 +125,7 @@ class EffectLoader:
             pid = int(f.read())
             if self._is_process_running(pid):
                 os.system(f"kill -9 {pid}")
-        
+
         os.remove(EFFECT_PID_FILE)
         os.remove(ACTIVE_EFFECT_FILE)
 
@@ -135,20 +140,18 @@ class EffectLoader:
 
         with open(ACTIVE_EFFECT_FILE, "r") as f:
             return f.read()
-        
 
 
 if __name__ == "__main__":
-
 
     async def main():
         sys.path.insert(1, f"{script_dir}/lib")
 
         from lightkit.core import LightKit
-        from lightkit.govee_kit import GoveeDiscoverer
-        from lightkit.kasa_kit import KasaDiscoverer
-        from lightkit.hue_kit import HueDiscoverer
-        from lightkit.smart_kit import SmartDiscover
+        from lightkit.govee import GoveeDiscoverer
+        from lightkit.kasa import KasaDiscoverer
+        from lightkit.hue import HueDiscoverer
+        from lightkit.smartthings import SmartThingsDiscover
 
         kit = LightKit()
 
@@ -162,8 +165,7 @@ if __name__ == "__main__":
             kit.add_discoverer(HueDiscoverer(settings.hue_bridge_ip))
 
         if settings.smartthings_enabled:
-            kit.add_discoverer(SmartDiscover(settings.smartthings_api_token))
-
+            kit.add_discoverer(SmartThingsDiscover(settings.smartthings_api_token))
 
         mod_name = sys.argv[1]
         spec = importlib.util.spec_from_file_location(
@@ -175,12 +177,9 @@ if __name__ == "__main__":
         options = {}
         if len(sys.argv) > 2:
             options = json.loads(sys.argv[2])
-        
+
         devices = await kit.discover()
 
-        try:
-            await mod.run(options, devices)
-        except Exception as e:
-            print(f"Error running effect: {e}")
+        await mod.run(options, devices)
 
     asyncio.run(main())
