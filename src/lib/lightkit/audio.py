@@ -4,6 +4,7 @@ import os
 import struct
 import subprocess
 import tempfile
+import threading
 from typing import Self, TypedDict
 import audioplayer
 import random
@@ -97,8 +98,6 @@ async def on_media_player_track_changed(cb):
 
     await asyncio.get_event_loop().create_future()
 
-
-
 async def visualizer(cb):
     BARS_NUMBER = 1
     RAW_TARGET = "/dev/stdout"
@@ -134,3 +133,50 @@ async def visualizer(cb):
             
             sample = [i / byte_norm for i in struct.unpack(fmt, data)]
             await cb(max(sample))
+            await asyncio.sleep(0.1)
+
+
+class Visualizer:
+    _bars = 1
+    _byte_type = "H"
+    _byte_size = 2
+    _byte_norm = 65535
+
+    def read(self):
+        return self._current
+    
+    def _create_config(self):
+        cfg = f"""
+        [general]
+        bars = {self._bars}
+        [output]
+        method = raw
+        raw_target = /dev/stdout
+        bit_format = 16bit
+        """
+
+        tmp = tempfile.NamedTemporaryFile(delete=False)
+        tmp.write(cfg.encode())
+        tmp.flush()
+        return tmp.name
+    
+    def _thread(self):
+        chunk = self._byte_size * self._bars
+        fmt = self._byte_type * self._bars
+        process = subprocess.Popen(
+            ["cava", "-p", self._config], stdout=subprocess.PIPE
+        )
+        while True:
+            data = process.stdout.read(chunk)
+            if len(data) < chunk:
+                break
+
+            sample = [i / self._byte_norm for i in struct.unpack(fmt, data)]
+            self._current = max(sample)
+    
+    def __init__(self):
+        self._config = self._create_config()
+        self._current = 1
+        self._thread = threading.Thread(target=self._thread)
+        self._thread.start()
+
