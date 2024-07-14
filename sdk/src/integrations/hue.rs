@@ -9,9 +9,10 @@ pub struct HueLight {
     id: String,
     username: String,
     bridge: String,
-    saturation: i64,
-    hue: i64,
-    brightness: i64,
+    brightness: u8,
+    red: u8,
+    green: u8,
+    blue: u8,
     name: String,
     supports_color: bool,
     is_on: bool,
@@ -31,7 +32,7 @@ impl Light for HueLight {
         Ok(())
     }
 
-    async fn set_brightness(&mut self, brightness: i64) -> CuteResult<()> {
+    async fn set_brightness(&mut self, brightness: u8) -> CuteResult<()> {
         let url = format!(
             "http://{}/api/{}/lights/{}/state",
             self.bridge, self.username, self.id
@@ -43,7 +44,9 @@ impl Light for HueLight {
         Ok(())
     }
 
-    async fn set_color(&mut self, hue: i64, saturation: i64, brightness: i64) -> CuteResult<()> {
+    async fn set_color(&mut self, red: u8, green: u8, blue: u8) -> CuteResult<()> {
+        let (hue, saturation, brightness) = crate::utils::color::rgb_to_hsv(red, green, blue);
+
         let url = format!(
             "http://{}/api/{}/lights/{}/state",
             self.bridge, self.username, self.id
@@ -56,28 +59,31 @@ impl Light for HueLight {
         let client = reqwest::Client::new();
         client.put(&url).body(body.to_string()).send().await?;
 
-        self.hue = hue;
-        self.saturation = saturation;
-        self.brightness = brightness;
+        self.red = red;
+        self.green = green;
+        self.blue = blue;
         Ok(())
     }
-    
+
     fn id(&self) -> String {
         format!("hue::{}", self.id)
     }
-    
-    fn brightness(&self) -> i64 {
+
+    fn brightness(&self) -> u8 {
         self.brightness
     }
 
-    fn hue(&self) -> i64 {
-        self.hue
+    fn red(&self) -> u8 {
+        self.red
     }
 
-    fn saturation(&self) -> i64 {
-        self.saturation
+    fn green(&self) -> u8 {
+        self.green
     }
 
+    fn blue(&self) -> u8 {
+        self.blue
+    }
     fn is_on(&self) -> bool {
         self.is_on
     }
@@ -132,13 +138,16 @@ impl super::Integration for HueIntegration {
             let name = json::object(&value)?["name"].as_str().unwrap();
             let supports_color = !&value["capabilities"]["control"]["colorgamut"].is_null();
 
+            let (red, green, blue) = crate::utils::color::hsv_to_rgb(hue, saturation, brightness);
+
             lights.push(HueLight {
                 id: light_id.to_string(),
                 username: user.to_string(),
                 bridge: bridge.to_string(),
-                saturation,
-                hue,
-                brightness,
+                red: red,
+                green: green,
+                blue: blue,
+                brightness: brightness as u8,
                 name: name.to_string(),
                 supports_color,
                 is_on,

@@ -18,9 +18,10 @@ use super::{Integration, Light};
 pub struct KasaLight {
     ip: String,
     is_on: bool,
-    brightness: i64,
-    hue: i64,
-    saturation: i64,
+    brightness: u8,
+    red: u8,
+    green: u8,
+    blue: u8,
     supports_color: bool,
     id: String,
     name: String,
@@ -34,13 +35,19 @@ impl KasaLight {
         let json: serde_json::Value = serde_json::from_str(&response).unwrap();
 
         let state: SysInfo = serde_json::from_value(json["system"]["get_sysinfo"].clone())?;
+        let (red, green, blue) = crate::utils::color::hsv_to_rgb(
+            state.light_state.hue.unwrap_or(0),
+            state.light_state.saturation.unwrap_or(0),
+            state.light_state.brightness.unwrap_or(0),
+        );
 
         Ok(KasaLight {
             ip,
             is_on: state.light_state.on_off,
-            brightness: state.light_state.brightness.unwrap_or(0),
-            hue: state.light_state.hue.unwrap_or(0),
-            saturation: state.light_state.saturation.unwrap_or(0),
+            brightness: state.light_state.brightness.unwrap_or(0) as u8,
+            red,
+            green,
+            blue,
             supports_color: state.is_color,
             name: state.alias,
             id: state.mic_mac,
@@ -117,21 +124,22 @@ impl Light for KasaLight {
         }
     }
 
-    async fn set_color(&mut self, h: i64, s: i64, b: i64) -> CuteResult<()> {
+    async fn set_color(&mut self, red: u8, green: u8, blue: u8) -> CuteResult<()> {
+        let (h, s, b) = crate::utils::color::rgb_to_hsv(red, green, blue);
         let msg = color_message(h, s, b);
         match KasaLight::send(self.ip.clone(), msg.to_string()).await {
             Ok(_) => {
-                self.hue = h;
-                self.saturation = s;
-                self.brightness = b;
+                self.red = red;
+                self.green = green;
+                self.blue = blue;
                 Ok(())
             }
             Err(e) => Err(e),
         }
     }
 
-    async fn set_brightness(&mut self, brightness: i64) -> CuteResult<()> {
-        let msg = brightness_message(brightness);
+    async fn set_brightness(&mut self, brightness: u8) -> CuteResult<()> {
+        let msg = brightness_message(brightness as i64);
         match KasaLight::send(self.ip.clone(), msg.to_string()).await {
             Ok(_) => {
                 self.brightness = brightness;
@@ -145,15 +153,19 @@ impl Light for KasaLight {
         format!("kasa::{}", self.id)
     }
 
-    fn hue(&self) -> i64 {
-        self.hue
+    fn red(&self) -> u8 {
+        self.red
     }
 
-    fn saturation(&self) -> i64 {
-        self.saturation
+    fn green(&self) -> u8 {
+        self.green
     }
 
-    fn brightness(&self) -> i64 {
+    fn blue(&self) -> u8 {
+        self.blue
+    }
+
+    fn brightness(&self) -> u8 {
         self.brightness
     }
 

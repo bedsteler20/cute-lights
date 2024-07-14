@@ -13,14 +13,14 @@ impl Frame {
         }
     }
 
-    pub fn set_color(&mut self, light: &'static mut impl Light, h: i64, s: i64, b: i64) {
+    pub fn set_color(&mut self, light: &'static mut impl Light, h: u8, s: u8, b: u8) {
         self.inner.push(async move {
             light.set_color(h, s, b).await.unwrap();
             ()
         });
     }
 
-    pub fn set_brightness(&mut self, light: &'static mut impl Light, brightness: i64) {
+    pub fn set_brightness(&mut self, light: &'static mut impl Light, brightness: u8) {
         self.inner.push(async move {
             light.set_brightness(brightness).await.unwrap();
             ()
@@ -32,6 +32,10 @@ impl Frame {
             light.set_on(on).await.unwrap();
             ()
         });
+    }
+
+    pub fn clear(&mut self) {
+        self.inner = FutureBatch::new();
     }
 
     pub async fn run(self) {

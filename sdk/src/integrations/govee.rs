@@ -1,14 +1,7 @@
 use super::Integration;
-use crate::{
-    config::CuteLightsConfig,
-    utils::{
-        color::{hsb_to_rgb, rgb_to_hsb},
-        future::FutureBatch,
-    },
-    CuteResult,
-};
-use serde::{Deserialize, Serialize};
 use crate::utils::json::boolean_int;
+use crate::{config::CuteLightsConfig, utils::future::FutureBatch, CuteResult};
+use serde::{Deserialize, Serialize};
 use std::{
     net::{IpAddr, Ipv4Addr, SocketAddr},
     str::FromStr,
@@ -23,9 +16,10 @@ pub struct GoveeLight {
     udp_socket: Arc<UdpSocket>,
     device_addr: SocketAddr,
     is_on: bool,
-    brightness: i64,
-    hue: i64,
-    saturation: i64,
+    brightness: u8,
+    red: u8,
+    green: u8,
+    blue: u8,
     id: String,
 }
 
@@ -42,18 +36,14 @@ impl GoveeLight {
             _ => return Err("Invalid response".into()),
         };
 
-        let (hue, saturation, _) = rgb_to_hsb(
-            response.color.r as u8,
-            response.color.g as u8,
-            response.color.b as u8,
-        );
         Ok(GoveeLight {
             udp_socket,
             device_addr,
             is_on: response.on,
-            brightness: response.brightness as i64,
-            hue: hue as i64,
-            saturation: saturation as i64,
+            brightness: response.brightness as u8,
+            red: response.color.r,
+            green: response.color.g,
+            blue: response.color.b,
             id: mac.to_string(),
         })
     }
@@ -68,24 +58,23 @@ impl Light for GoveeLight {
         Ok(())
     }
 
-    async fn set_color(&mut self, h: i64, s: i64, b: i64) -> CuteResult<()> {
-        self.set_brightness(b).await?;
-        let (r, g, b) = hsb_to_rgb(h as f64, s as f64, b as f64);
+    async fn set_color(&mut self, red: u8, green: u8, blue: u8) -> CuteResult<()> {
         let msg = Request::Color {
             color: DeviceColor {
-                r: r as u8,
-                g: g as u8,
-                b: b as u8,
+                r: red,
+                g: green,
+                b: blue,
             },
             color_temperature_kelvin: 7200,
         };
         send_message(&self.udp_socket, &self.device_addr, msg, false).await?;
-        self.hue = h;
-        self.saturation = s;
+        self.red = red;
+        self.green = green;
+        self.blue = blue;
         Ok(())
     }
 
-    async fn set_brightness(&mut self, brightness: i64) -> CuteResult<()> {
+    async fn set_brightness(&mut self, brightness: u8) -> CuteResult<()> {
         let msg = Request::Brightness {
             value: brightness as u8,
         };
@@ -108,13 +97,19 @@ impl Light for GoveeLight {
         true
     }
 
-    fn hue(&self) -> i64 {
-        self.hue
+    fn red(&self) -> u8 {
+        self.red
     }
-    fn saturation(&self) -> i64 {
-        self.saturation
+
+    fn green(&self) -> u8 {
+        self.green
     }
-    fn brightness(&self) -> i64 {
+
+    fn blue(&self) -> u8 {
+        self.blue
+    }
+
+    fn brightness(&self) -> u8 {
         self.brightness
     }
 }

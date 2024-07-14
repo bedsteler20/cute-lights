@@ -26,14 +26,16 @@ where
 {
 
     async fn set_on(&mut self, on: bool) -> CuteResult<()>;
-    async fn set_color(&mut self, h: i64, s: i64, b: i64) -> CuteResult<()>;
-    async fn set_brightness(&mut self, brightness: i64) -> CuteResult<()>;
+    async fn set_color(&mut self, r: u8, g: u8, b: u8) -> CuteResult<()>;
+    async fn set_brightness(&mut self, brightness: u8) -> CuteResult<()>;
     fn is_on(&self) -> bool;
     fn name(&self) -> String;
     fn supports_color(&self) -> bool;
 
-    fn hue(&self) -> i64;
-    fn saturation(&self) -> i64;
-    fn brightness(&self) -> i64;
+    fn red(&self) -> u8;
+    fn green(&self) -> u8;
+    fn blue(&self) -> u8;
+
+    fn brightness(&self) -> u8;
     fn id(&self) -> String;
 }
