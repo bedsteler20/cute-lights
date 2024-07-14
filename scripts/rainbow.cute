@@ -1,0 +1,20 @@
+"""
+name: Rainbow
+description: Slowly changes the color of the lights in the room.
+author: bedsteler20
+version: 1.0
+sdk: 2.0
+requirements: []
+"""
+
+from cute_lights import *
+
+devices = discover()
+frame = Frame()
+
+while True:
+    for i in range(0, 360):
+        frame.set_color_all(i, 100, 100)
+        frame.run()
+        frame.clear()
+        sleep(0.1)
