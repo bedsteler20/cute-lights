@@ -1,0 +1,26 @@
+{
+    "version": "0.2",
+    "ignorePaths": [],
+    "dictionaryDefinitions": [],
+    "dictionaries": [],
+    "words": [
+        "byteorder",
+        "cbindgen",
+        "Cdecl",
+        "colorgamut",
+        "colorwc",
+        "Conv",
+        "Convs",
+        "Govee",
+        "kasa",
+        "libcutelights",
+        "lightingservice",
+        "repr",
+        "reqwest",
+        "smartbulb",
+        "smartlife",
+        "sysinfo"
+    ],
+    "ignoreWords": [],
+    "import": []
+}

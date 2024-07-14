@@ -1,0 +1,14 @@
+[package]
+name = "cute-light-clib"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cute_lights = { path = "../rust" }
+tokio = { version = "1.38.0", features = ["full"] }
+
+[lib]
+crate-type = ["cdylib"]
+
+[build-dependencies]
+cbindgen = "0.26.0"
