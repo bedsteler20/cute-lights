@@ -217,6 +217,7 @@ dependencies = [
 name = "cute-light-clib"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "cbindgen",
  "csbindgen",
  "cute_lights",

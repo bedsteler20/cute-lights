@@ -1,13 +1,12 @@
 use std::{future::Future, pin::Pin};
 
-use cute_lights::CuteResult;
 use tokio::task::JoinSet;
 
 use crate::{light::LightPtr, utils::synchronize};
 
 #[repr(C)]
 pub struct FramePtr {
-    set: Vec<Pin<Box<Pin<Box<dyn Future<Output = CuteResult<()>> + Send>>>>>,
+    set: Vec<Pin<Box<Pin<Box<dyn Future<Output = anyhow::Result<()>> + Send>>>>>,
 }
 
 #[no_mangle]
