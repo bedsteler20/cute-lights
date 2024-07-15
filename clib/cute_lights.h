@@ -1,59 +1,58 @@
-#include <cstdarg>
-#include <cstdint>
-#include <cstdlib>
-#include <ostream>
-#include <new>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 
-struct FramePtr;
+typedef struct FramePtr FramePtr;
 
-struct LightDiscovererPtr;
+typedef struct LightDiscovererPtr LightDiscovererPtr;
 
-struct LightPtr;
+typedef struct LightPtr LightPtr;
 
-extern "C" {
+bool light_set_on(struct LightPtr *l, bool on);
 
-bool light_set_on(LightPtr *l, bool on);
+bool light_set_color(struct LightPtr *l, uint8_t red, uint8_t green, uint8_t blue);
 
-bool light_set_color(LightPtr *l, uint8_t red, uint8_t green, uint8_t blue);
+bool light_set_brightness(struct LightPtr *l, uint8_t brightness);
 
-bool light_set_brightness(LightPtr *l, uint8_t brightness);
+uint8_t light_get_brightness(struct LightPtr *l);
 
-uint8_t light_get_brightness(LightPtr *l);
+uint8_t light_get_red(struct LightPtr *l);
 
-uint8_t light_get_red(LightPtr *l);
+uint8_t light_get_green(struct LightPtr *l);
 
-uint8_t light_get_green(LightPtr *l);
+uint8_t light_get_blue(struct LightPtr *l);
 
-uint8_t light_get_blue(LightPtr *l);
+bool light_get_is_on(struct LightPtr *l);
 
-bool light_get_is_on(LightPtr *l);
+char *light_get_name(struct LightPtr *l);
 
-char *light_get_name(LightPtr *l);
+char *light_get_id(struct LightPtr *l);
 
-char *light_get_id(LightPtr *l);
+bool light_get_supports_color(struct LightPtr *l);
 
-bool light_get_supports_color(LightPtr *l);
+void light_free(struct LightPtr *l);
 
-void light_free(LightPtr *l);
+struct LightDiscovererPtr *light_discoverer_new(void);
 
-LightDiscovererPtr *light_discoverer_new();
+struct LightPtr *light_discoverer_next(struct LightDiscovererPtr *ld);
 
-LightPtr *light_discoverer_next(LightDiscovererPtr *ld);
+void light_discoverer_free(struct LightDiscovererPtr *ld);
 
-void light_discoverer_free(LightDiscovererPtr *ld);
+struct FramePtr *frame_new(void);
 
-FramePtr *frame_new();
+void frame_clear(struct FramePtr *f);
 
-void frame_clear(FramePtr *f);
+void frame_free(struct FramePtr *f);
 
-void frame_free(FramePtr *f);
+void frame_set_on(struct FramePtr *f, struct LightPtr *l, bool on);
 
-void frame_set_on(FramePtr *f, LightPtr *l, bool on);
+void frame_set_color(struct FramePtr *f,
+                     struct LightPtr *l,
+                     uint8_t red,
+                     uint8_t green,
+                     uint8_t blue);
 
-void frame_set_color(FramePtr *f, LightPtr *l, uint8_t red, uint8_t green, uint8_t blue);
+void frame_set_brightness(struct FramePtr *f, struct LightPtr *l, uint8_t brightness);
 
-void frame_set_brightness(FramePtr *f, LightPtr *l, uint8_t brightness);
-
-void frame_run(FramePtr *f);
-
-} // extern "C"
+void frame_run(struct FramePtr *f);

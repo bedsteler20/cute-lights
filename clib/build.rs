@@ -6,6 +6,7 @@ pub fn main() {
     // check if a feature is enabled
     cbindgen::Builder::new()
         .with_crate(crate_dir)
+        .with_language(cbindgen::Language::C)
         .generate()
         .expect("Unable to generate bindings")
         .write_to_file("cute_lights.h");

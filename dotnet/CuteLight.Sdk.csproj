@@ -5,6 +5,44 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>CuteLight.Sdk</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageId>CuteLight.Sdk</PackageId>
+    <Version>1.0.1</Version>
+    <Authors>Cameron Dehning</Authors>
+    <Description>CuteLight SDK for .NET</Description>
+    <Title>CuteLights Sdk</Title>
+    <RepositoryUrl>https://github.com/bedsteler20/cute-lights</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="example\**" />
+    <None Include="README.md" Pack="true" PackagePath="\"/>
+    <None Include="LICENCE" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+
+  
+
+  <Target Name="BuildCLibRelease" BeforeTargets="Restore" Condition="'$(Configuration)' == 'Release'" Outputs="../clib/target/release/libcutelight.so">
+    <Exec Command="cargo build --release --manifest-path ../clib/Cargo.toml" />
+    <Exec Command="cargo build"/>
+  </Target>
+
+  <Target Name="BuildCLibDebug" BeforeTargets="Restore" Condition="'$(Configuration)' == 'Debug'">
+    <Exec Command="cargo build --manifest-path ../clib/Cargo.toml" />
+    <Exec Command="cargo build"/>
+  </Target>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <Content Include="../clib/target/debug/libcutelight.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
+    <Content Include="../clib/target/release/libcutelight.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

@@ -4,7 +4,7 @@ use crate::utils::synchronize;
 
 #[repr(C)]
 pub struct LightPtr {
-    pub(crate) inner: Box<dyn Light>,
+    pub inner: Box<dyn Light>,
 }
 
 #[no_mangle]

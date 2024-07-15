@@ -1,0 +1,32 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = false
+insert_final_newline = false
+
+
+#  CSharp formatting rules:
+[*.cs]
+resharper_csharp_max_line_length = 100
+resharper_csharp_wrap_before_comma = false
+resharper_add_imports_to_deepest_scope = false
+csharp_allow_alias = false
+csharp_qualified_using_at_nested_scope = false
+csharp_keep_blank_lines_in_declarations = 0
+csharp_new_line_before_open_brace = false
+csharp_new_line_before_else = false
+csharp_new_line_before_catch = false
+csharp_new_line_before_finally = false
+csharp_new_line_before_members_in_object_initializers = false
+csharp_new_line_before_members_in_anonymous_types = false
+csharp_new_line_between_query_expression_clauses = true
+
+# IDE0130: Namespace does not match folder structure
+dotnet_style_namespace_match_folder = false

@@ -1,0 +1,10 @@
+[package]
+name = "cute-light-dotnet"
+version = "0.1.0"
+
+[lib]
+path = "/dev/null"
+
+[build-dependencies]
+bindgen = "0.69.4"
+csbindgen = "1.9.1"
