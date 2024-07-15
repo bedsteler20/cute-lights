@@ -24,6 +24,14 @@ public class Light {
     /// </summary>
     public string Name { get; private set; }
 
+    public LightColor Color {
+        get {
+            unsafe {
+                return new LightColor(NativeMethods.light_get_red(ptr), NativeMethods.light_get_green(ptr), NativeMethods.light_get_blue(ptr));
+            }
+        }
+    }
+
     /// <summary>
     /// Gets the brightness level of the light.
     /// </summary>
@@ -139,6 +147,15 @@ public class Light {
                 return NativeMethods.light_set_color(ptr, (byte)red, (byte)green, (byte)blue);
             }
         });
+    }
+
+    /// <summary>
+    /// Sets the color of the light.
+    /// </summary>
+    /// <param name="color">The color to set.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a boolean value indicating whether the color was set successfully.</returns>
+    public Task<bool> SetColor(LightColor color) {
+        return SetColor(color.Red, color.Green, color.Blue);
     }
 
     /// <summary>

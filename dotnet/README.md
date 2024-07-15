@@ -30,8 +30,6 @@ while (true) {
     frame.Clear();
     await Task.Delay(1000);
 }
-
-
 ```
 
 ## Configuration
@@ -58,5 +56,5 @@ username = "<Your Hue Api Key>"
 
 ## Language Bindings
 
-- [Dotnet](https://www.nuget.org/packages/CuteLights.Sdk/)
+- [Dotnet](https://www.nuget.org/packages/CuteLight.Sdk/)
 - [Rust](https://crates.io/crates/cute_lights)

@@ -2,11 +2,20 @@ use std::future::Future;
 
 use tokio::task::JoinSet;
 
-pub struct FutureBatch<T> {
+pub struct FutureBatch<T> 
+where
+    T: Send,
+    T: 'static,
+
+{
     futures: JoinSet<T>,
 }
 
-impl<T: std::marker::Send> FutureBatch<T> {
+impl<T> FutureBatch<T> 
+where
+    T: Send,
+    T: 'static,
+{
     pub fn new() -> Self {
         Self {
             futures: JoinSet::new(),

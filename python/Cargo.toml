@@ -1,0 +1,15 @@
+[package]
+name = "python"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "cute_light"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.22.0", features = ["experimental-async", "anyhow"] }
+cute_lights = { path = "../rust" }
+tokio = { version = "1.38.0", features = ["full"] }
+anyhow = "1.0.86"

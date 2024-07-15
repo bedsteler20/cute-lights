@@ -7,7 +7,7 @@
     <AssemblyName>CuteLight.Sdk</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PackageId>CuteLight.Sdk</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.0.4</Version>
     <Authors>Cameron Dehning</Authors>
     <Description>CuteLight SDK for .NET</Description>
     <Title>CuteLights Sdk</Title>
@@ -20,6 +20,8 @@
     <Compile Remove="example\**" />
     <None Include="README.md" Pack="true" PackagePath="\"/>
     <None Include="LICENCE" Pack="true" PackagePath="\"/>
+    <None Include="../clib/target/release/libcutelight.so" Pack="true" PackagePath="\runtimes\linux-x64\native" />
+
   </ItemGroup>
 
   
@@ -33,16 +35,4 @@
     <Exec Command="cargo build --manifest-path ../clib/Cargo.toml" />
     <Exec Command="cargo build"/>
   </Target>
-
-  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-    <Content Include="../clib/target/debug/libcutelight.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(Configuration)' == 'Release'">
-    <Content Include="../clib/target/release/libcutelight.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
 </Project>

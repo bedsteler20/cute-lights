@@ -1,7 +1,7 @@
+use crate::utils::json::boolean_int;
 use crate::{
     config::CuteLightsConfig,
     utils::{future::FutureBatch, json},
-    CuteResult,
 };
 use async_trait::async_trait;
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
@@ -9,7 +9,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::{fmt::Debug, io::Cursor};
 use tokio::net::TcpStream;
-use crate::utils::json::boolean_int;
 
 use super::{Integration, Light};
 
@@ -28,7 +27,7 @@ pub struct KasaLight {
 }
 
 impl KasaLight {
-    pub async fn new(ip: String) -> CuteResult<KasaLight> {
+    pub async fn new(ip: String) -> anyhow::Result<KasaLight> {
         let data = get_sysinfo_message();
         let response = KasaLight::send(ip.clone(), data.to_string()).await?;
 
@@ -54,7 +53,7 @@ impl KasaLight {
         })
     }
 
-    async fn send(ip: String, data: String) -> CuteResult<String> {
+    async fn send(ip: String, data: String) -> anyhow::Result<String> {
         use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
         let mut stream = TcpStream::connect(format!("{}:9999", ip)).await?;
@@ -113,7 +112,7 @@ impl KasaLight {
 
 #[async_trait]
 impl Light for KasaLight {
-    async fn set_on(&mut self, on: bool) -> CuteResult<()> {
+    async fn set_on(&mut self, on: bool) -> anyhow::Result<()> {
         let msg = on_off_message(on);
         match KasaLight::send(self.ip.clone(), msg.to_string()).await {
             Ok(_) => {
@@ -124,7 +123,7 @@ impl Light for KasaLight {
         }
     }
 
-    async fn set_color(&mut self, red: u8, green: u8, blue: u8) -> CuteResult<()> {
+    async fn set_color(&mut self, red: u8, green: u8, blue: u8) -> anyhow::Result<()> {
         let (h, s, b) = crate::utils::color::rgb_to_hsv(red, green, blue);
         let msg = color_message(h, s, b);
         match KasaLight::send(self.ip.clone(), msg.to_string()).await {
@@ -138,7 +137,7 @@ impl Light for KasaLight {
         }
     }
 
-    async fn set_brightness(&mut self, brightness: u8) -> CuteResult<()> {
+    async fn set_brightness(&mut self, brightness: u8) -> anyhow::Result<()> {
         let msg = brightness_message(brightness as i64);
         match KasaLight::send(self.ip.clone(), msg.to_string()).await {
             Ok(_) => {
@@ -203,7 +202,7 @@ impl Integration for KasaIntegration {
     fn preflight(config: &CuteLightsConfig) -> bool {
         config.kasa.enabled
     }
-    async fn discover(config: &'static CuteLightsConfig) -> CuteResult<Vec<Box<dyn Light>>> {
+    async fn discover(config: &'static CuteLightsConfig) -> anyhow::Result<Vec<Box<dyn Light>>> {
         let mut lights = FutureBatch::new();
 
         for address in &config.kasa.addresses {

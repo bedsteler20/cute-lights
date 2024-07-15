@@ -63,6 +63,16 @@ public class Frame {
         }
     }
 
+
+    /// <summary>
+    /// Sets the color of a specific light.
+    /// </summary>
+    /// <param name="light">The light to set the color for.</param>
+    /// <param name="color">The color to set.</param>
+    public void SetColor(Light light, LightColor color) {
+        SetColor(light, color.Red, color.Green, color.Blue);
+    }
+
     /// <summary>
     /// Sets the color of all the lights in the specified array.
     /// </summary>
@@ -95,6 +105,15 @@ public class Frame {
                 NativeMethods.frame_set_color(ptr, light.ptr, (byte)red, (byte)green, (byte)blue);
             }
         }
+    }
+
+    /// <summary>
+    /// Sets the color of all lights in the specified array to the specified color.
+    /// </summary>
+    /// <param name="lights">The array of lights.</param>
+    /// <param name="color">The color to set.</param>
+    public void SetColorAll(Light[] lights, LightColor color) {
+        SetColorAll(lights, color.Red, color.Green, color.Blue);
     }
 
     /// <summary>

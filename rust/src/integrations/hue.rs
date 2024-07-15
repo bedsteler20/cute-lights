@@ -1,4 +1,4 @@
-use crate::{utils::json, CuteResult};
+use crate::utils::json;
 
 use super::Light;
 
@@ -20,7 +20,7 @@ pub struct HueLight {
 
 #[async_trait::async_trait]
 impl Light for HueLight {
-    async fn set_on(&mut self, on: bool) -> CuteResult<()> {
+    async fn set_on(&mut self, on: bool) -> anyhow::Result<()> {
         let url = format!(
             "http://{}/api/{}/lights/{}/state",
             self.bridge, self.username, self.id
@@ -32,7 +32,7 @@ impl Light for HueLight {
         Ok(())
     }
 
-    async fn set_brightness(&mut self, brightness: u8) -> CuteResult<()> {
+    async fn set_brightness(&mut self, brightness: u8) -> anyhow::Result<()> {
         let url = format!(
             "http://{}/api/{}/lights/{}/state",
             self.bridge, self.username, self.id
@@ -44,7 +44,7 @@ impl Light for HueLight {
         Ok(())
     }
 
-    async fn set_color(&mut self, red: u8, green: u8, blue: u8) -> CuteResult<()> {
+    async fn set_color(&mut self, red: u8, green: u8, blue: u8) -> anyhow::Result<()> {
         let (hue, saturation, brightness) = crate::utils::color::rgb_to_hsv(red, green, blue);
 
         let url = format!(
@@ -116,7 +116,7 @@ impl super::Integration for HueIntegration {
     }
     async fn discover(
         config: &'static crate::config::CuteLightsConfig,
-    ) -> CuteResult<Vec<Box<dyn Light>>> {
+    ) -> anyhow::Result<Vec<Box<dyn Light>>> {
         let bridge = &config.hue.bridge_ip.as_ref().unwrap();
         let user = &config.hue.username.as_ref().unwrap();
 

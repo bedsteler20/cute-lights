@@ -1,6 +1,6 @@
 use super::Integration;
 use crate::utils::json::boolean_int;
-use crate::{config::CuteLightsConfig, utils::future::FutureBatch, CuteResult};
+use crate::{config::CuteLightsConfig, utils::future::FutureBatch};
 use serde::{Deserialize, Serialize};
 use std::{
     net::{IpAddr, Ipv4Addr, SocketAddr},
@@ -24,7 +24,7 @@ pub struct GoveeLight {
 }
 
 impl GoveeLight {
-    pub async fn new(udp_socket: Arc<UdpSocket>, ip: &str, mac: &str) -> CuteResult<GoveeLight> {
+    pub async fn new(udp_socket: Arc<UdpSocket>, ip: &str, mac: &str) -> anyhow::Result<GoveeLight> {
         let device_addr = SocketAddr::new(IpAddr::V4(ip.parse()?), 4003);
 
         let msg = Request::DevStatus {};
@@ -33,7 +33,7 @@ impl GoveeLight {
 
         let response = match response {
             Response::DevStatus(status) => status,
-            _ => return Err("Invalid response".into()),
+            _ => return Err(anyhow::anyhow!("Unexpected response")),
         };
 
         Ok(GoveeLight {
@@ -51,14 +51,14 @@ impl GoveeLight {
 
 #[async_trait::async_trait]
 impl Light for GoveeLight {
-    async fn set_on(&mut self, on: bool) -> CuteResult<()> {
+    async fn set_on(&mut self, on: bool) -> anyhow::Result<()> {
         let msg = Request::Turn { value: on as u8 };
         send_message(&self.udp_socket, &self.device_addr, msg, false).await?;
         self.is_on = on;
         Ok(())
     }
 
-    async fn set_color(&mut self, red: u8, green: u8, blue: u8) -> CuteResult<()> {
+    async fn set_color(&mut self, red: u8, green: u8, blue: u8) -> anyhow::Result<()> {
         let msg = Request::Color {
             color: DeviceColor {
                 r: red,
@@ -74,7 +74,7 @@ impl Light for GoveeLight {
         Ok(())
     }
 
-    async fn set_brightness(&mut self, brightness: u8) -> CuteResult<()> {
+    async fn set_brightness(&mut self, brightness: u8) -> anyhow::Result<()> {
         let msg = Request::Brightness {
             value: brightness as u8,
         };
@@ -137,7 +137,7 @@ impl Integration for GoveeIntegration {
     fn name() -> String {
         "govee".to_string()
     }
-    async fn discover(config: &'static CuteLightsConfig) -> CuteResult<Vec<Box<dyn Light>>> {
+    async fn discover(config: &'static CuteLightsConfig) -> anyhow::Result<Vec<Box<dyn Light>>> {
         let mut batch = FutureBatch::new();
         let client_sock = Arc::new(UdpSocket::bind("0.0.0.0:4002").await?);
 
@@ -183,7 +183,7 @@ const MULTICAST_TTL: u32 = 2;
 pub async fn discover_ids(
     client_sock: Arc<UdpSocket>,
     ips: Vec<String>,
-) -> CuteResult<Vec<(String, String)>> {
+) -> anyhow::Result<Vec<(String, String)>> {
     let (tx, mut rx) = tokio::sync::mpsc::channel(32);
 
     tokio::spawn(async move {
@@ -271,7 +271,7 @@ async fn send_message(
     addr: &SocketAddr,
     data: Request,
     expect_response: bool,
-) -> CuteResult<Response> {
+) -> anyhow::Result<Response> {
     sock.send_to(
         serde_json::to_string(&RequestMessage { msg: data })?.as_bytes(),
         addr,
